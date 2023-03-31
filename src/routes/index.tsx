@@ -1,15 +1,17 @@
+import { Login, Register } from '@/features/auth'
+import { Transactions, Wallet, Wallets } from '@/features/wallet'
 import { useRoutes } from 'react-router-dom'
 
 const publicRoutes = [
-  { path: '/login', element: <div>Login page</div> },
-  { path: '/signup', element: <div>Signup page</div> },
+  { path: '/login', element: <Login /> },
+  { path: '/register', element: <Register /> },
 ]
 
 const protectedRoutes = [
-  { path: '/wallets', element: <div>All wallets page</div> },
-  { path: '/wallet/:id', element: <div>Single wallet page</div> },
-  { path: '/wallet/:id/income', element: <div>Income page</div> },
-  { path: '/wallet/:id/expense', element: <div>Expense page</div> },
+  { path: '/wallets', element: <Wallets /> },
+  { path: '/wallet/:id', element: <Wallet /> },
+  { path: '/wallet/:id/income', element: <Transactions type='INCOME' /> },
+  { path: '/wallet/:id/expense', element: <Transactions type='EXPENSE' /> },
 ]
 
 export const AppRoutes = () => {
