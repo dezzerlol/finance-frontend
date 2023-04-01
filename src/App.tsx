@@ -1,6 +1,6 @@
 import { MantineProvider } from '@mantine/core'
-import { AppRoutes } from './routes'
 import { BrowserRouter } from 'react-router-dom'
+import { AppRoutes } from './routes'
 
 function App() {
   return (
