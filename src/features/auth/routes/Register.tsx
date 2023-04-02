@@ -29,6 +29,8 @@ type ValidationSchema = z.infer<typeof validationSchema>
 
 export const Register = () => {
   const [resMessage, setResMessage] = useState('')
+  const [apiError, setApiError] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
   const {
     register,
     handleSubmit,
@@ -38,13 +40,21 @@ export const Register = () => {
   })
 
   const onSubmit: SubmitHandler<ValidationSchema> = async (data) => {
-    const res = await axios.post('/auth/register', {
-      username: data.username,
-      password: data.password,
-    })
+    setIsLoading(true)
+    setResMessage('')
+    setApiError('')
 
-    if (res.status === 201) {
+    try {
+      await axios.post('/auth/register', {
+        username: data.username,
+        password: data.password,
+      })
+
       setResMessage('Вы успешно зарегистрировались')
+    } catch (error: any) {
+      setApiError(error.response.data.message)
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -58,11 +68,12 @@ export const Register = () => {
         {errors.password && <ErrorText>{errors.password.message}</ErrorText>}
         <Input placeholder='Подтверждение пароля' type='password' {...register('confirmPassword')} />
         {errors.confirmPassword && <ErrorText>{errors.confirmPassword.message}</ErrorText>}
-        <Button type='submit'>Войти</Button>
+        <Button type='submit' loading={isLoading}>Войти</Button>
       </form>
       <span>
         Уже зарегистрированы? <Link to='/login'>Войти</Link>
       </span>
+      {apiError && <ErrorText>{apiError}</ErrorText>}
       {resMessage && <Text color='green'>{resMessage}</Text>}
     </AuthLayout>
   )

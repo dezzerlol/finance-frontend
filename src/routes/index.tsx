@@ -1,20 +1,16 @@
 import { Login, Register } from '@/features/auth'
 import { Transactions, Wallet, Wallets } from '@/features/wallet'
-import { axios } from '@/lib/axios'
-import { getCookie, removeCookie } from '@/lib/cookie'
-import { useEffect, useState } from 'react'
-import { Navigate, Outlet, Route, Routes, useNavigate } from 'react-router-dom'
+import { getCookie } from '@/lib/cookie'
+import AuthProvider from '@/providers/AuthProvider'
+import { Navigate, Outlet, Route, Routes } from 'react-router-dom'
 
 const PublicRoute = (props: any) => {
-  const isAuth = getCookie('ACCESS_TOKEN')
+  const accessToken = getCookie('ACCESS_TOKEN')
 
-  return isAuth ? <Navigate to='/wallets' replace /> : props.children
+  return accessToken ? <Navigate to='/wallets' replace /> : props.children
 }
 
 const PrivateRoutes = (props: any) => {
-  const [user, setUser] = useState(null)
-  const navigate = useNavigate()
-
   const accessToken = getCookie('ACCESS_TOKEN')
   const refreshToken = getCookie('REFRESH_TOKEN')
 
@@ -22,28 +18,18 @@ const PrivateRoutes = (props: any) => {
     return <Navigate to='/login' replace />
   }
 
-  useEffect(() => {
-    async function getUser() {
-      try {
-        const res = await axios.post('/user/me')
-        setUser(res.data)
-      } catch (error) {
-        removeCookie('REFRESH_TOKEN')
-        removeCookie('ACCESS_TOKEN')
-        navigate('/login', { replace: true })
-      }
-    }
-
-    getUser()
-  }, [])
-
-  return <Outlet />
+  return (
+    <AuthProvider>
+      <Outlet />
+    </AuthProvider>
+  )
 }
 
 export const AppRoutes = () => {
   return (
     <Routes>
       <Route path='*' element={<div>404 not found</div>} />
+      <Route path='/' element={<Navigate replace to='/wallets' />} />
 
       <Route
         path='/login'
