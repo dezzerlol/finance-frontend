@@ -25,7 +25,7 @@ const TransactionList = ({ transactions, type }: Props) => {
           />
         ))
       ) : (
-        <Center w='250px'>
+        <Center w='300px'>
           <Text>0 операций...</Text>
         </Center>
       )}

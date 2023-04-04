@@ -34,7 +34,7 @@ const NewTransactionButton = ({ walletId, type }: Props) => {
 
   return (
     <>
-      <Button onClick={handleModal}>Добавить новый</Button>
+      <Button onClick={handleModal}>Добавить операцию</Button>
 
       {isOpened && (
         <Modal centered opened={isOpened} onClose={handleModal} title='Добавить операцию' zIndex={1000}>

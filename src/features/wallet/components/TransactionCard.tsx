@@ -26,11 +26,11 @@ const TransactionCard = ({ transactionId, title, amount, type, date, changeable 
   }
 
   return (
-    <Card shadow='sm' bg='#E7F5FF' w='250px' h='90px'>
+    <Card shadow='sm' bg='#E7F5FF' w='300px' h='90px'>
       <Group position='apart'>
         <Group spacing='xs' align='center'>
           {type === 'income' ? <IoArrowDownCircleOutline size='20' /> : <IoArrowUpCircleOutline size='20' />}
-          <Text size='lg' weight={600}>
+          <Text title={title} size='lg' weight={600} maw='150px' truncate='end'>
             {title}
           </Text>
           {changeable && <UpdateTransactionButton id={transactionId} title={title} />}

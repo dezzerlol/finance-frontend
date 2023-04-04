@@ -20,7 +20,14 @@ const WalletCard = ({ id, title, balance }: { id: string; title: string; balance
     <Card shadow='xs' mb='md' bg='#E6FCF5' c='gray'>
       <Group position='apart' align='center'>
         <Flex align='center' gap='md'>
-          <Text weight={600} size='xl' onClick={() => navigate(`/wallets/${id}`)} sx={{ cursor: 'pointer' }}>
+          <Text
+            title={title}
+            maw='250px'
+            truncate='end'
+            weight={600}
+            size='xl'
+            onClick={() => navigate(`/wallets/${id}`)}
+            sx={{ cursor: 'pointer' }}>
             {title}
           </Text>
           <UpdateWalletButton id={id} title={title} />
