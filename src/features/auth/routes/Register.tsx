@@ -1,61 +1,29 @@
+import ErrorText from '@/components/ErrorText'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { SubmitHandler, useForm } from 'react-hook-form'
-import { z } from 'zod'
-import AuthLayout from '../components/AuthLayout'
 import { Button, Input, Text, Title } from '@mantine/core'
-import { Link } from 'react-router-dom'
-import ErrorText from '../components/ErrorText'
-import { axios } from '@/lib/axios'
 import { useState } from 'react'
-
-const validationSchema = z
-  .object({
-    username: z
-      .string()
-      .min(8, { message: 'Логин должен быть не меньше 8 символов' })
-      .max(255, { message: 'Логин должен быть не больше 255 символов' }),
-    password: z
-      .string()
-      .min(3, { message: 'Пароль должен быть не меньше 3 символов' })
-      .max(72, { message: 'Пароль должен быть не больше 72 символов' }),
-    confirmPassword: z.string().min(1, { message: 'Введите пароль еще раз' }),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    path: ['confirmPassword'],
-    message: 'Пароли не совпадают',
-  })
-
-type ValidationSchema = z.infer<typeof validationSchema>
+import { SubmitHandler, useForm } from 'react-hook-form'
+import { Link } from 'react-router-dom'
+import { useRegister } from '../api/auth'
+import AuthLayout from '../components/AuthLayout'
+import { RegisterSchema, registerSchema } from '../utils/authSchema'
 
 export const Register = () => {
   const [resMessage, setResMessage] = useState('')
-  const [apiError, setApiError] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
+  const { mutateAsync, isLoading, error: apiError } = useRegister()
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<ValidationSchema>({
-    resolver: zodResolver(validationSchema),
+  } = useForm<RegisterSchema>({
+    resolver: zodResolver(registerSchema),
   })
 
-  const onSubmit: SubmitHandler<ValidationSchema> = async (data) => {
-    setIsLoading(true)
+  const onSubmit: SubmitHandler<RegisterSchema> = async (data) => {
     setResMessage('')
-    setApiError('')
+    await mutateAsync({ username: data.username, password: data.password })
 
-    try {
-      await axios.post('/auth/register', {
-        username: data.username,
-        password: data.password,
-      })
-
-      setResMessage('Вы успешно зарегистрировались')
-    } catch (error: any) {
-      setApiError(error.response.data.message)
-    } finally {
-      setIsLoading(false)
-    }
+    setResMessage('Вы успешно зарегистрировались')
   }
 
   return (
@@ -68,12 +36,14 @@ export const Register = () => {
         {errors.password && <ErrorText>{errors.password.message}</ErrorText>}
         <Input placeholder='Подтверждение пароля' type='password' {...register('confirmPassword')} />
         {errors.confirmPassword && <ErrorText>{errors.confirmPassword.message}</ErrorText>}
-        <Button type='submit' loading={isLoading}>Войти</Button>
+        <Button type='submit' loading={isLoading}>
+          Отправить
+        </Button>
       </form>
       <span>
         Уже зарегистрированы? <Link to='/login'>Войти</Link>
       </span>
-      {apiError && <ErrorText>{apiError}</ErrorText>}
+      {apiError && <ErrorText>{apiError?.response?.data?.message}</ErrorText>}
       {resMessage && <Text color='green'>{resMessage}</Text>}
     </AuthLayout>
   )

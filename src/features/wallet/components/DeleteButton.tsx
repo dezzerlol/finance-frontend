@@ -1,4 +1,4 @@
-import ErrorText from '@/features/auth/components/ErrorText'
+import ErrorText from '@/components/ErrorText'
 import { ActionIcon, Button, Group, Modal, Text } from '@mantine/core'
 import { useState } from 'react'
 import { IoClose } from 'react-icons/io5'
@@ -7,26 +7,22 @@ type Props = {
   modalTitle: string
   modalDescription: string
   handleDelete: () => Promise<void>
+  error?: string
+  isLoading: boolean
 }
 
-const DeleteButton = ({ modalTitle, modalDescription, handleDelete }: Props) => {
+const DeleteButton = ({ modalTitle, modalDescription, error, isLoading, handleDelete }: Props) => {
   const [isOpened, setIsOpened] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState('')
 
   function handleModal() {
     setIsOpened((prev) => !prev)
   }
 
   async function onDelete() {
-    setIsLoading(true)
-    try {
-      await handleDelete()
+    await handleDelete()
+
+    if (!error) {
       setIsOpened(false)
-    } catch (error: any) {
-      setError(error.response.data.message)
-    } finally {
-      setIsLoading(false)
     }
   }
 
@@ -37,7 +33,7 @@ const DeleteButton = ({ modalTitle, modalDescription, handleDelete }: Props) => 
       </ActionIcon>
 
       {isOpened && (
-        <Modal opened={isOpened} onClose={handleModal} title={modalTitle} zIndex={10000}>
+        <Modal centered opened={isOpened} onClose={handleModal} title={modalTitle} zIndex={10000}>
           <Text>{modalDescription}</Text>
           <Group mt='md' position='right'>
             {error && <ErrorText>{error}</ErrorText>}

@@ -1,8 +1,8 @@
 import { axios } from '@/lib/axios'
 import { useAuth } from '@/providers/AuthProvider'
 import { Button, Flex, Menu } from '@mantine/core'
-import { Link, useNavigate, useOutletContext } from 'react-router-dom'
-import { IoPersonCircleOutline } from 'react-icons/io5'
+import { IoLogOutOutline, IoPersonCircleOutline } from 'react-icons/io5'
+import { Link, useNavigate } from 'react-router-dom'
 
 const Header = () => {
   const navigate = useNavigate()
@@ -31,7 +31,9 @@ const Header = () => {
           </Button>
         </Menu.Target>
         <Menu.Dropdown>
-          <Menu.Item onClick={handleLogout}>Выход</Menu.Item>
+          <Menu.Item onClick={handleLogout} icon={<IoLogOutOutline />}>
+            Выход
+          </Menu.Item>
         </Menu.Dropdown>
       </Menu>
     </Flex>

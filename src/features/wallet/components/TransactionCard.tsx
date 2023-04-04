@@ -1,8 +1,11 @@
-import { axios } from '@/lib/axios'
 import { formatMoney } from '@/utils/formatMoney'
-import { ActionIcon, Card, Group, Text } from '@mantine/core'
-import { IoArrowDownCircleOutline, IoArrowUpCircleOutline, IoCreateOutline } from 'react-icons/io5'
+import { Card, Group, Text } from '@mantine/core'
+import { IoArrowDownCircleOutline, IoArrowUpCircleOutline } from 'react-icons/io5'
+import { useDeleteTransaction } from '../api/transaction'
 import DeleteButton from './DeleteButton'
+import UpdateTransactionButton from './UpdateTransactionButton'
+import { useParams } from 'react-router-dom'
+import { formatDate } from '@/utils/formatDate'
 
 type Props = {
   transactionId: string
@@ -13,32 +16,29 @@ type Props = {
   changeable?: boolean
 }
 
-function formatDate(dateStr: string) {
-  const date = new Date(dateStr)
-  return date.toLocaleDateString('UTC', { year: 'numeric', month: 'numeric', day: 'numeric' })
-}
-
 const TransactionCard = ({ transactionId, title, amount, type, date, changeable = false }: Props) => {
+  const { mutateAsync, isLoading, error: apiError } = useDeleteTransaction()
+  const params = useParams()
+  const walletId = params.id as string
+
   async function handleDelete() {
-    await axios.post('/wallet/deleteTransaction', { id: transactionId })
+    await mutateAsync({ id: transactionId, walletId })
   }
 
   return (
-    <Card shadow='sm' bg='#E7F5FF' w='250px'>
+    <Card shadow='sm' bg='#E7F5FF' w='250px' h='90px'>
       <Group position='apart'>
         <Group spacing='xs' align='center'>
           {type === 'income' ? <IoArrowDownCircleOutline size='20' /> : <IoArrowUpCircleOutline size='20' />}
           <Text size='lg' weight={600}>
             {title}
           </Text>
-          {changeable && (
-            <ActionIcon size='xs' variant='transparent'>
-              <IoCreateOutline />
-            </ActionIcon>
-          )}
+          {changeable && <UpdateTransactionButton id={transactionId} title={title} />}
         </Group>
         {changeable && (
           <DeleteButton
+            isLoading={isLoading}
+            error={apiError?.response?.data?.message}
             modalTitle='Удалить операцию'
             modalDescription='Вы действительно хотите удалить операцию?'
             handleDelete={handleDelete}

@@ -1,25 +1,28 @@
-import { useApi } from '@/hooks/useApi'
+import FourOFour from '@/components/FourOFour'
 import { formatMoney } from '@/utils/formatMoney'
-import { Container, Group, Stack, Text, Title } from '@mantine/core'
+import { Box, Container, Group, Stack, Text, Title } from '@mantine/core'
 import { useParams } from 'react-router-dom'
+import { useTransaction } from '../api/transaction'
+import { useSingleWallet } from '../api/wallet'
 import TransactionList from '../components/TransactionList'
 import WalletLayout from '../components/WalletLayout'
 
 export const Wallet = () => {
-  const { id } = useParams()
-  const { data: wallet, loading: walletLoading } = useApi<any>({
-    url: `/wallet/${id}`,
-    method: 'GET',
-  })
+  const params = useParams()
+  const id = params.id as string
+  const { data: wallet, isLoading } = useSingleWallet(id)
 
-  const { data: incomes, loading: incomesLoading } = useApi<any[]>({
-    url: `/wallet/incomes/${id}?skip=${0}&take=${5}`,
-    method: 'GET',
-  })
-  const { data: expenses, loading: expensesLoading } = useApi<any[]>({
-    url: `/wallet/expenses/${id}?skip=${0}&take=${5}`,
-    method: 'GET',
-  })
+  // wait for wallet to load
+  const { data: incomes, isLoading: incomesLoading } = useTransaction('INCOME', wallet?.id, 0, 5)
+  const { data: expenses, isLoading: expensesLoading } = useTransaction('EXPENSE', wallet?.id, 0, 5)
+
+  if (!wallet && !isLoading) {
+    return (
+      <WalletLayout>
+        <FourOFour />
+      </WalletLayout>
+    )
+  }
 
   return (
     <WalletLayout>
@@ -28,9 +31,19 @@ export const Wallet = () => {
           <Title weight={400}>Кошелек: {wallet?.title}</Title>
           {wallet && <Text>Текущий баланс: {formatMoney(wallet.balance)} ₽</Text>}
         </Stack>
-        <Group position='apart' my='md'>
-          <TransactionList transactions={incomes} title='Доходы' type='income' />
-          <TransactionList transactions={expenses} title='Расходы' type='expense' />
+        <Group position='apart' align='start'>
+          <Box>
+            <Title weight={400} mb='md'>
+              Доходы
+            </Title>
+            <TransactionList transactions={incomes} type='income' />
+          </Box>
+          <Box>
+            <Title weight={400} mb='md'>
+              Расходы
+            </Title>
+            <TransactionList transactions={expenses} type='expense' />
+          </Box>
         </Group>
       </Container>
     </WalletLayout>

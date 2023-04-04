@@ -1,49 +1,27 @@
-import { axios } from '@/lib/axios'
+import ErrorText from '@/components/ErrorText'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button, Input, Title } from '@mantine/core'
-import { useState } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router-dom'
-import { z } from 'zod'
+import { useLogin } from '../api/auth'
 import AuthLayout from '../components/AuthLayout'
-import ErrorText from '../components/ErrorText'
-
-const validationSchema = z.object({
-  username: z
-    .string()
-    .min(8, { message: 'Логин должен быть не меньше 8 символов' })
-    .max(255, { message: 'Логин должен быть не больше 255 символов' }),
-  password: z
-    .string()
-    .min(3, { message: 'Пароль должен быть не меньше 3 символов' })
-    .max(72, { message: 'Пароль должен быть не больше 72 символов' }),
-})
-
-type ValidationSchema = z.infer<typeof validationSchema>
+import { AuthSchema, authSchema } from '../utils/authSchema'
 
 export const Login = () => {
-  const [isLoading, setIsLoading] = useState(false)
-  const [apiError, setApiError] = useState('')
+  const { mutateAsync, isLoading, error: apiError } = useLogin()
   const navigate = useNavigate()
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<ValidationSchema>({
-    resolver: zodResolver(validationSchema),
+  } = useForm<AuthSchema>({
+    resolver: zodResolver(authSchema),
   })
 
-  const onSubmit: SubmitHandler<ValidationSchema> = async (data) => {
-    setIsLoading(true)
-
-    try {
-      await axios.post('/auth/login', { username: data.username, password: data.password })
+  const onSubmit: SubmitHandler<AuthSchema> = async (data) => {
+    mutateAsync({ username: data.username, password: data.password }).then(() => {
       navigate('/wallets', { replace: true })
-    } catch (error: any) {
-      setApiError(error.response.data.message)
-    } finally {
-      setIsLoading(false)
-    }
+    })
   }
 
   return (
@@ -57,7 +35,7 @@ export const Login = () => {
         <Button type='submit' loading={isLoading}>
           Войти
         </Button>
-        {apiError && <ErrorText>{apiError}</ErrorText>}
+        {apiError && <ErrorText>{apiError?.response?.data?.message}</ErrorText>}
       </form>
       <span>
         Еще нет аккаунта? <Link to='/register'>Зарегистрируйтесь</Link>

@@ -1,3 +1,4 @@
+import FourOFour from '@/components/FourOFour'
 import { Login, Register } from '@/features/auth'
 import { Transactions, Wallet, Wallets } from '@/features/wallet'
 import { getCookie } from '@/lib/cookie'
@@ -28,7 +29,7 @@ const PrivateRoutes = (props: any) => {
 export const AppRoutes = () => {
   return (
     <Routes>
-      <Route path='*' element={<div>404 not found</div>} />
+      <Route path='*' element={<FourOFour />} />
       <Route path='/' element={<Navigate replace to='/wallets' />} />
 
       <Route

@@ -1,19 +1,20 @@
-import { useApi } from '@/hooks/useApi'
-import { Button, Container, Group, Title } from '@mantine/core'
+import { Container, Group, Title } from '@mantine/core'
+import { useWallets } from '../api/wallet'
+import NewWalletButton from '../components/NewWalletButton'
 import WalletCard from '../components/WalletCard'
 import WalletLayout from '../components/WalletLayout'
 
 export const Wallets = () => {
-  const { data, loading } = useApi<any[]>({ url: '/wallet/getWallets', method: 'GET' })
+  const { data: wallets, isLoading, error: apiError } = useWallets()
 
   return (
     <WalletLayout>
       <Container>
         <Group position='apart' my='md'>
           <Title weight={400}>Ваши кошельки</Title>
-          <Button>Добавить новый</Button>
+          <NewWalletButton />
         </Group>
-        {data?.map((wallet) => (
+        {wallets?.map((wallet) => (
           <WalletCard key={wallet.id} id={wallet.id} balance={wallet.balance} title={wallet.title} />
         ))}
       </Container>

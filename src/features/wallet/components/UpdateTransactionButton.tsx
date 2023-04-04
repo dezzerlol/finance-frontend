@@ -1,25 +1,28 @@
-import { ActionIcon, Button, Group, Modal, TextInput } from '@mantine/core'
 import React, { useState } from 'react'
+import { useUpdateTransaction } from '../api/transaction'
+import { ActionIcon, Button, Group, Modal, TextInput } from '@mantine/core'
 import { IoCreateOutline } from 'react-icons/io5'
-import { useUpdateWallet } from '../api/wallet'
+import { useParams } from 'react-router-dom'
 
 type Props = {
   id: string
   title: string
 }
 
-const UpdateWalletButton = ({ id, title }: Props) => {
+const UpdateTransactionButton = ({ id, title }: Props) => {
   const [newTitle, setNewTitle] = useState(title)
   const [isOpened, setIsOpened] = useState(false)
+  const params = useParams()
+  const walletId = params.id as string
 
-  const { mutateAsync, isLoading, error: apiError } = useUpdateWallet()
+  const { mutateAsync, isLoading, error: apiError } = useUpdateTransaction()
 
   function handleModal() {
     setIsOpened((prev) => !prev)
   }
 
   async function handleUpdate() {
-    await mutateAsync({ id, title: newTitle })
+    await mutateAsync({ id, title: newTitle, walletId })
 
     if (!apiError) {
       setIsOpened(false)
@@ -28,12 +31,12 @@ const UpdateWalletButton = ({ id, title }: Props) => {
 
   return (
     <>
-      <ActionIcon variant='transparent' onClick={handleModal}>
-        <IoCreateOutline color='gray' size='20px' />
+      <ActionIcon size='xs' variant='transparent' onClick={handleModal}>
+        <IoCreateOutline />
       </ActionIcon>
 
       {isOpened && (
-        <Modal centered opened={isOpened} onClose={handleModal} title='Изменить кошелек' zIndex={10000}>
+        <Modal centered opened={isOpened} onClose={handleModal} title='Изменить операцию' zIndex={10000}>
           <TextInput
             withAsterisk
             label='Название'
@@ -54,4 +57,4 @@ const UpdateWalletButton = ({ id, title }: Props) => {
   )
 }
 
-export default UpdateWalletButton
+export default UpdateTransactionButton

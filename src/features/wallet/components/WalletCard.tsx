@@ -1,8 +1,8 @@
 import { Card, Flex, Group, Text } from '@mantine/core'
 import { useNavigate } from 'react-router-dom'
-import UpdateWalletButton from './UpdateWalletButton'
+import { useDeleteWallet } from '../api/wallet'
 import DeleteButton from './DeleteButton'
-import { axios } from '@/lib/axios'
+import UpdateWalletButton from './UpdateWalletButton'
 
 function formatCardId(cardId: string) {
   return '**** ' + cardId.slice(-4, cardId.length)
@@ -10,9 +10,10 @@ function formatCardId(cardId: string) {
 
 const WalletCard = ({ id, title, balance }: { id: string; title: string; balance: number }) => {
   const navigate = useNavigate()
+  const { mutateAsync, isLoading, error: apiError } = useDeleteWallet()
 
   async function handleDelete() {
-    await axios.post('/wallet/deleteWallet', { walletId: id })
+    await mutateAsync({ id })
   }
 
   return (
@@ -25,6 +26,8 @@ const WalletCard = ({ id, title, balance }: { id: string; title: string; balance
           <UpdateWalletButton id={id} title={title} />
         </Flex>
         <DeleteButton
+          isLoading={isLoading}
+          error={apiError?.response?.data?.message}
           modalTitle='Удаление кошелька'
           modalDescription='Вы действительно хотите удалить кошелек?'
           handleDelete={handleDelete}
